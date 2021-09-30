@@ -41,18 +41,27 @@ app.post('/account', (req, res) => {
   return res.status(201).send();
 });
 
-// 1ª forma de utilizar middleware na rota
 app.get('/statement', verifyIfExistsAccountCPF, (req, res) => {
  const { customer } = req;
- 
+
  return res.json(customer.statement);
 }); 
 
-/**
- * 2ª forma de utilizar middleware nas rotas
- * quando precisar que todas as rotas a seguir contenham esse middleware
- * 
- * app.use(verifyIfExistsAccountCPF);
- */
+app.post('/deposit', verifyIfExistsAccountCPF, (req, res) =>{
+  const { description, amount } = req.body;
+
+  const { customer } = req;
+
+  const statementOperation = {
+    description,
+    amount,
+    created_at: new Date(),
+    type: "credit"
+  }
+
+  customer.statement.push(statementOperation);
+
+  return res.status(201).send();
+}) 
 
 app.listen(3333);
